@@ -4,10 +4,7 @@ name: Build Vouch Proxy (Simple)
 
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ bulid ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +19,7 @@ jobs:
         fetch-depth: 0
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: '1.23'
 
@@ -57,7 +54,7 @@ jobs:
         ./vouch-proxy -version || echo "Build completed"
 
     - name: Upload binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: vouch-proxy-linux
         path: vouch-proxy
