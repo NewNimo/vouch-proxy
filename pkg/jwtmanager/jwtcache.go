@@ -53,10 +53,16 @@ func JWTCacheHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check to see if the request is from a whitelisted IP
 		ipWhitelist := cfg.Cfg.IPWhiteList
-		ipHost, _, _ := net.SplitHostPort(r.RemoteAddr) // 去掉端口
-		log.Debugf("request ip: %s", ipHost)
+		realIP := r.Header.Get("X-Forwarded-For")
+		if realIP == "" {
+			realIP = r.Header.Get("X-Real-IP")
+		}
+		if realIP == "" {
+			realIP, _, _ = net.SplitHostPort(r.RemoteAddr)
+		}
+		log.Debugf("request ip: %s", realIP)
 		for _, wip := range ipWhitelist {
-			if ipHost == wip {
+			if realIP == wip {
 				logger.Debug("IP whitelisted, access granted")
 				w.Header().Add(cfg.Cfg.Headers.User, "whitelisted")
 				w.Header().Add(cfg.Cfg.Headers.Success, "true")
