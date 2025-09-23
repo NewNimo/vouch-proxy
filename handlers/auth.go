@@ -53,7 +53,7 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 // - validate info from oauth provider (Google, GitHub, OIDC, etc)
 // - issue jwt in the form of a cookie
 func AuthStateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Debug("/auth/{state}/ api")
+	log.Debug("/auth/{state}/")
 	// Handle the exchange code to initiate a transport.
 
 	session, err := sessstore.Get(r, cfg.Cfg.Session.Name)

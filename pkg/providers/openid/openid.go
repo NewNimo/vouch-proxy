@@ -35,14 +35,12 @@ func (Provider) Configure() {
 
 // GetUserInfo provider specific call to get userinfomation
 func (Provider) GetUserInfo(r *http.Request, user *structs.User, customClaims *structs.CustomClaims, ptokens *structs.PTokens, opts ...oauth2.AuthCodeOption) (rerr error) {
-	log.Debugf("----->client ssl  get userinfo ")
 	client, _, err := common.PrepareTokensAndClient(r, ptokens, true, opts...)
 	if err != nil {
 		return err
 	}
 	userinfo, err := client.Get(cfg.GenOAuth.UserInfoURL)
 	if err != nil {
-		log.Debugf("----->cclient ssl userinfo error: %v", err)
 		return err
 	}
 	defer func() {

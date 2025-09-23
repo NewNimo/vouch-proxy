@@ -54,6 +54,7 @@ func JWTCacheHandler(next http.Handler) http.Handler {
 		// check to see if the request is from a whitelisted IP
 		ipWhitelist := cfg.Cfg.IPWhiteList
 		ipHost, _, _ := net.SplitHostPort(r.RemoteAddr) // 去掉端口
+		log.Debugf("request ip: %s", ipHost)
 		for _, wip := range ipWhitelist {
 			if ipHost == wip {
 				logger.Debug("IP whitelisted, access granted")

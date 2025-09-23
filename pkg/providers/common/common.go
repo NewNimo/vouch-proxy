@@ -35,11 +35,9 @@ func PrepareTokensAndClient(r *http.Request, ptokens *structs.PTokens, setProvid
 	sslClient := ClientWithCert(&http.Client{})
 	ctx := context.WithValue(context.TODO(), oauth2.HTTPClient, sslClient)
 	providerToken, err := cfg.OAuthClient.Exchange(ctx, r.URL.Query().Get("code"), opts...)
-	log.Debugf("----->PrepareTokensAndClient 1")
 	if err != nil {
 		return nil, nil, err
 	}
-	log.Debugf("----->PrepareTokensAndClient 2")
 	ptokens.PAccessToken = providerToken.AccessToken
 
 	if setProviderToken {
@@ -59,17 +57,17 @@ func PrepareTokensAndClient(r *http.Request, ptokens *structs.PTokens, setProvid
 }
 
 func ClientWithCert(client *http.Client) *http.Client {
-	log.Debugf("----->ClientWithCert 1")
+	log.Debugf("ClientWithCert")
 	certFile := cfg.Cfg.TLS.ClientCertFile
 	keyFile := cfg.Cfg.TLS.ClientKeyFile
 	if certFile == "" || keyFile == "" {
-		log.Debugf("----->client ssl is null")
+		log.Debugf("client ssl is null")
 		return client
 	}
 	// 加载客户端证书
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		log.Debugf("----->client ssl load error: %v", err)
+		log.Debugf("client ssl load error: %v", err)
 		return client
 	}
 
@@ -95,7 +93,7 @@ func ClientWithCert(client *http.Client) *http.Client {
 			TLSClientConfig: tlsConfig,
 		}
 	}
-	log.Debugf("----->with client ssl success")
+	log.Debugf("ClientWithCert success")
 	return client
 }
 
