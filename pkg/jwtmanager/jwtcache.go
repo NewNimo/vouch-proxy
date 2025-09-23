@@ -60,6 +60,10 @@ func JWTCacheHandler(next http.Handler) http.Handler {
 		if realIP == "" {
 			realIP, _, _ = net.SplitHostPort(r.RemoteAddr)
 		}
+		if strings.Contains(realIP, ",") {
+			parts := strings.Split(realIP, ",")
+			realIP = strings.TrimSpace(parts[0])
+		}
 		log.Debugf("request ip: %s", realIP)
 		for _, wip := range ipWhitelist {
 			if realIP == wip {
