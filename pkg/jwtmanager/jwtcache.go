@@ -11,6 +11,7 @@ OR CONDITIONS OF ANY KIND, either express or implied.
 package jwtmanager
 
 import (
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -50,6 +51,18 @@ func cacheConfigure() {
 // all tests for JWTCacheHandler are present in `handlers/validate_test.go` to avoid circular imports
 func JWTCacheHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// check to see if the request is from a whitelisted IP
+		ipWhitelist := cfg.Cfg.IPWhiteList
+		ipHost, _, _ := net.SplitHostPort(r.RemoteAddr) // 去掉端口
+		for _, wip := range ipWhitelist {
+			if ipHost == wip {
+				logger.Debug("IP whitelisted, access granted")
+				w.Header().Add(cfg.Cfg.Headers.User, "whitelisted")
+				w.Header().Add(cfg.Cfg.Headers.Success, "true")
+				responses.OK200(w, r)
+				return
+			}
+		}
 
 		jwt := FindJWT(r)
 

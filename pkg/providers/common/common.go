@@ -12,6 +12,7 @@ package common
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 
@@ -49,7 +50,45 @@ func PrepareTokensAndClient(r *http.Request, ptokens *structs.PTokens, setProvid
 
 	log.Debugf("ptokens: accessToken length: %d, IdToken length: %d", len(ptokens.PAccessToken), len(ptokens.PIdToken))
 	client := cfg.OAuthClient.Client(context.TODO(), providerToken)
-	return client, providerToken, err
+
+	return ClientWithCert(client), providerToken, err
+}
+
+func ClientWithCert(client *http.Client) *http.Client {
+	certFile := cfg.Cfg.TLS.ClientCertFile
+	keyFile := cfg.Cfg.TLS.ClientKeyFile
+	if certFile == "" || keyFile == "" {
+		return client
+	}
+	// 加载客户端证书
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return client
+	}
+
+	// 给 Transport 注入 TLS，仅发送客户端证书
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+	// 给 Transport 注入 TLS
+	switch tr := client.Transport.(type) {
+	case *http.Transport:
+		tr.TLSClientConfig = tlsConfig
+	case *oauth2.Transport: // 如果是 oauth2.Transport 包装的
+		if baseTr, ok := tr.Base.(*http.Transport); ok {
+			baseTr.TLSClientConfig = tlsConfig
+		} else {
+			tr.Base = &http.Transport{
+				TLSClientConfig: tlsConfig,
+			}
+		}
+	default:
+		client.Transport = &http.Transport{
+			TLSClientConfig: tlsConfig,
+		}
+	}
+	return client
 }
 
 // MapClaims populate CustomClaims from userInfo for each configure claims header

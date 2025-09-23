@@ -4,7 +4,7 @@ name: Build Vouch Proxy (Simple)
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ feat-* ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
