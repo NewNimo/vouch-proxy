@@ -58,11 +58,13 @@ func ClientWithCert(client *http.Client) *http.Client {
 	certFile := cfg.Cfg.TLS.ClientCertFile
 	keyFile := cfg.Cfg.TLS.ClientKeyFile
 	if certFile == "" || keyFile == "" {
+		log.Debugf("client ssl is null")
 		return client
 	}
 	// 加载客户端证书
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
+		log.Debugf("client ssl load error: %v", err)
 		return client
 	}
 
@@ -88,6 +90,7 @@ func ClientWithCert(client *http.Client) *http.Client {
 			TLSClientConfig: tlsConfig,
 		}
 	}
+	log.Debugf("with client ssl success")
 	return client
 }
 

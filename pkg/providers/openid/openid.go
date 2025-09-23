@@ -41,6 +41,7 @@ func (Provider) GetUserInfo(r *http.Request, user *structs.User, customClaims *s
 	}
 	userinfo, err := client.Get(cfg.GenOAuth.UserInfoURL)
 	if err != nil {
+		log.Debugf("client ssl userinfo error: %v", err)
 		return err
 	}
 	defer func() {
